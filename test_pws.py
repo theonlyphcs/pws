@@ -24,33 +24,17 @@ def get_data():
      sense_data.append(humid)
      return sense_data
 
-#function for logging data to database & textfile
-def log_data():
-     now = datetime.datetime.now() 
-     log = open("weather.txt", "a")
-     logtime = str(now)
-     log.write(logtime + " | " + message + "\n") 
-     log.close()
-
 #function for logging to .csv format
 def csv_log():
-     with open('senseLog.csv', "a")  as fp:
-          a = csv.writer(fp, delimiter=',')
-          a.writerows([["tempC", "temF", "Pressure", "Humidity","Wind Direction","Windspeed","Rainfall", "Time"],[sense_data[0],sense_data[1],sense_data[2],sense_data[3],datetime.datetime.now()]])
-     fp.close()
+    
 
 #start of main program
 while True:
      sense_data=get_data()
      message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | '.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3])
      print(message)
-     time.sleep(10)
-     csv_log()
-     log_data()
-     print(message)
-     csv_log()
-     log_data()      
-     print("logged")
+     time.sleep(30)
+
      
      
 
