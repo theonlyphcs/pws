@@ -9,6 +9,7 @@ import time
 from time import sleep
 from datetime import datetime
 import model
+import MySQLdb
 
 wind_pin = 21
 rain_pin = 26
@@ -88,12 +89,41 @@ while True:
     csv_log()
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
     print(message,'\n')
+    #try:
+        #readingtime = datetime.now()
+        #data.add_reading(time=readingtime, tempC=sense_data[0], tempF=sense_data[1], press=sense_data[2], humid=sense_data[3], wspeed=wspeed, rainfall=rff)
+    #finally:
+        #print("DB Logging success")
+        #data.close()
     try:
-        readingtime = datetime.now()
-        data.add_reading(time=readingtime, tempC=sense_data[0], tempF=sense_data[1], press=sense_data[2], humid=sense_data[3], wspeed=wspeed, rainfall=rff)
+        #Open database connection
+        db = MySQLdb.connect("169.254.84.210","root","raspi","readings")
+
+        #prepare a cursor object using cursor method()
+        cursor = db.cursor()
+        
+        sql= """INSERT INTO SENSORREADINGS(time, tempC, tempF, press, humid, wspeed,rainfall) VALUES (readingtime, sense_data[0], sense_data[1], sense_data[2], sense_data[3], wspeed, rff)"""
+        try:
+            #execute SQL QUERY USING EXECUTE METHOD()
+            cursor.execute(sql)
+            
+            #commit changes in the database
+            db.commit()
+            print("DB Logging success")
+            
+        except:
+            db.rollback()
+            print("error log unsuccessful")
+
+        #fetch a single row using fetchone() method
+        #data = cursor.fetchone()
+
+        #print ("database version %s" % data)
+        
     finally:
-        print("DB Logging success")
-        data.close()
+        #disconnect from server
+        db.close()
+
     time.sleep(10)
     
 
