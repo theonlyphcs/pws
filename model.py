@@ -1,15 +1,15 @@
 from peewee import *
 
-db =MySQLDatabase('readings', user='root', passwd='raspi')
+db = MySQLDatabase('thesis', user='root', passwd='raspi')
 
 class dataReadings(Model):
-    time = Charfield()
-    tempC = Charfield()
-    tempF = Charfield()
-    press = Charfield()
-    humid = Charfield()
-    wspeed = Charfield()
-    rainfall = Charfield()
+    time = CharField()
+    tempC = CharField()
+    tempF = CharField()
+    press = CharField()
+    humid = CharField()
+    wspeed = CharField()
+    rainfall = CharField()
     
     class Meta:
         database = db
@@ -22,18 +22,18 @@ class dataObject(object):
         #connect to Database.
         db.connect()
         #make sure the tables are created (safe=True, otherwise they might be deleted).
-        db.create_tables([sensorreadings], safe=True)
+        db.create_tables([dataReadings], safe = True)
 
     def get_recent_readings(self, limit=30):
         """return a list of the most recent reading the specified name, by default returns 30 readings, in descending order"""
-        return sensorreadings.select() \
-               .where(sensorreadings.name == name) \
-               .order_by(sensorreadings.time.desc()) \
+        return dataReadings.select() \
+               .where(dataReadings.name == name) \
+               .order_by(dataReadings.time.desc()) \
                .limit(limit)
     
     def add_reading(self, time, tempC, tempF, press, humid, wspeed, rainfall):
         """add the specified sensor reading to the database"""
-        sensorreadings.create(time=time, tempC=tempC, tempF=tempF, press=press, humid=humid, wspeed=wspeed, rainfall=rainfall)
+        dataReadings.create(time=time, tempC=tempC, tempF=tempF, press=press, humid=humid, wspeed=wspeed, rainfall=rainfall)
 
     def close(self):
         """close the connection to the database"""
