@@ -23,10 +23,18 @@ def get_data():
      sense_data.append(humid)
      return sense_data
 
-#function for logging to .csv format
+#function for logging to excel file
 def csv_log():
-    print("test")
-
+    file = open("/media/pi/SONDISK/data_log.csv", "a")
+    i=0
+    if os.stat("/media/pi/SONDISK/data_log.csv").st_size == 0:
+            file.write("Time,TempCelsius,TempFarenheit,Pressure,Humidity,Windspeed,Rainfall\n")
+    i=i+1
+    now = datetime.now()
+    file.write(str(now)+","+ str(tempC) +","+ str(tempF) +","+ str(press) +","+ str(humid)+","+ str(wspeed) +","+ str(rff) +"\n")
+    file.flush()
+    file.close()
+    
 #start of main program
 while True:
      sense_data=get_data()
