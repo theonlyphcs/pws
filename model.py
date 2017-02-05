@@ -3,7 +3,7 @@ from peewee import *
 mysql_db =MySQLDatabase('readings', user='root', passwd='raspi')
 
 
-class sensorreadings(model):
+class sensorreadings(Model):
     time = Charfield()
     tempC = Charfield()
     tempF = Charfield()
