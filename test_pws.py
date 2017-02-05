@@ -84,18 +84,11 @@ while True:
     time.sleep(interval)
     wspeed = calculate_speed(9.0, interval)
     rff = bucket_tipped(rf)
-    #print ("Windspeed: ",wspeed, "kph" ,wind_count)
-    #print ("Rainfall: ",rff, "mm", rain_count, '\n')
     sense_data=get_data()
     csv_log()
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
     print(message,'\n')
-    #try:
-        #readingtime = datetime.now()
-        #data.add_reading(time=readingtime, tempC=sense_data[0], tempF=sense_data[1], press=sense_data[2], humid=sense_data[3], wspeed=wspeed, rainfall=rff)
-    #finally:
-        #print("DB Logging success")
-        #data.close()
+
     try:
         #Open database connection
         db = MySQLdb.connect("169.254.84.210","root","raspi","readings")
@@ -104,20 +97,19 @@ while True:
         cursor = db.cursor()
         
         sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff))
+
         try:
             #execute SQL QUERY USING EXECUTE METHOD()
             cursor.execute(sql)
-            db.commit()#commit changes in the database
+
+            #commit changes in the database
+            db.commit()
             print("DB Logging success")
             
         except:
             print("error log unsuccessful")
-
-        #fetch a single row using fetchone() method
-        #data = cursor.fetchone()
-
-        #print ("database version %s" % data)
-        
+            db.rollback()
+            
     finally:
         #disconnect from server
         db.close()
