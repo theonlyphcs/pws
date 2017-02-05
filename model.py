@@ -2,7 +2,6 @@ from peewee import *
 
 mysql_db =MySQLDatabase('readings', user='root', passwd='raspi')
 
-
 class sensorreadings(Model):
     time = Charfield()
     tempC = Charfield()
@@ -15,7 +14,7 @@ class sensorreadings(Model):
     class Meta:
         database = mysql_db
 
-class sensordata(object):
+class dataObject(object):
     "Main data access layer class which provides functions to query sensor reading data from database"
 
     def _init_(self):

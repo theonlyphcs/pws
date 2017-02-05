@@ -6,9 +6,9 @@ import RPi.GPIO as GPIO
 import time, math
 import os
 import time
-import model
 from time import sleep
 from datetime import datetime
+import model
 
 wind_pin = 21
 rain_pin = 26
@@ -74,7 +74,7 @@ GPIO.add_event_detect(wind_pin, GPIO.FALLING, callback=spin)
 GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
 
-data = model.sensordata()
+data = model.dataObject()
 
 while True:
     wind_count = 0
