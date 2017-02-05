@@ -5,7 +5,8 @@ from sense_hat import SenseHat
 import RPi.GPIO as GPIO
 import time, math
 import os
-import time 
+import time
+import model
 from time import sleep
 from datetime import datetime
 
