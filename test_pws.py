@@ -78,7 +78,7 @@ interval = 5
 data = model.dataObject()
 
 while True:
-    readingtime = datetime.now()
+    readingtime = str(datetime.now())
     wind_count = 0
     rain_count = 0
     time.sleep(interval)
@@ -103,7 +103,7 @@ while True:
         #prepare a cursor object using cursor method()
         cursor = db.cursor()
         
-        sql= "INSERT INTO SENSORREADINGS(time, tempC, tempF, press, humid, wspeed,rainfall) VALUES ('%d','%d','%d','%d','%d','%d','%d)" % (readingtime, sense_data[0], sense_data[1], sense_data[2], sense_data[3], wspeed, rff)
+        sql= "INSERT INTO SENSORREADINGS(time, tempC, tempF, press, humid, wspeed,rainfall) VALUES ('%s','%d','%d','%d','%d','%d','%d)" % (readingtime, sense_data[0], sense_data[1], sense_data[2], sense_data[3], wspeed, rff)
         try:
             #execute SQL QUERY USING EXECUTE METHOD()
             cursor.execute(sql)
