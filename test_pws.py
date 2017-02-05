@@ -73,6 +73,8 @@ GPIO.add_event_detect(wind_pin, GPIO.FALLING, callback=spin)
 GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
 
+data = model.sensordata()
+
 while True:
     wind_count = 0
     rain_count = 0
@@ -85,6 +87,11 @@ while True:
     csv_log()
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
     print(message,'\n')
+    try:
+        readingtime = datetime.now()
+        data.add_reading(time=readingtime, tempC=sense_data[0], tempF=sense_data[1], press=sense_data[2], humid=sense_data[3], wspeed=wspeed, rainfall=rff)
+    finally:
+        data.close()
     time.sleep(10)
     
 
