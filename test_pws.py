@@ -9,7 +9,6 @@ import RPi.GPIO as GPIO
 import serial
 import os
 import spidev
-import 
 
 wspeed=0
 rff=0
