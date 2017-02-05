@@ -1,13 +1,15 @@
 
 #EnviMainProgram
 from sense_hat import SenseHat
-import time,math
-import datetime
+from time import sleep
+from datetime import datetime
 import csv
+import time,math
 import RPi.GPIO as GPIO
 import serial
 import os
 import spidev
+import 
 
 wspeed=0
 rff=0
