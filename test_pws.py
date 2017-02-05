@@ -35,7 +35,7 @@ def csv_log():
             file.write("Time,TempCelsius,TempFarenheit,Pressure,Humidity,Windspeed,Rainfall\n")
     i=i+1
     now = datetime.now()
-    file.write(str(now)+","+ str(tempC) +","+ str(tempF) +","+ str(press) +","+ str(humid)+","+ str(wspeed) +","+ str(rff) +"\n")
+    file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
     print("...success logging \n")
