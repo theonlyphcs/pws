@@ -37,12 +37,13 @@ def csv_log():
     file.write(str(now)+","+ str(tempC) +","+ str(tempF) +","+ str(press) +","+ str(humid)+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
-    print("success logging \n")
+    print("...success logging \n")
     
 #start of main program
 while True:
      sense_data=get_data()
      message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3])
+     csv_log()
      print(message)
      time.sleep(30)
 
