@@ -1,6 +1,6 @@
 from peewee import *
 
-db = MySQLDatabase('thesis', user='root', passwd='raspi')
+db = MySQLDatabase('thesis',host='169.254.84.210', port=3306, user='root', passwd='raspi')
 
 class datareadings(Model):
     time = CharField()
