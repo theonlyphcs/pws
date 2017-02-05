@@ -78,6 +78,7 @@ interval = 5
 data = model.dataObject()
 
 while True:
+    readingtime = datetime.now()
     wind_count = 0
     rain_count = 0
     time.sleep(interval)
