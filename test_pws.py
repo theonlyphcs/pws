@@ -1,3 +1,4 @@
+
 #EnviMainProgram
 from sense_hat import SenseHat
 import time,math
@@ -7,10 +8,12 @@ import RPi.GPIO as GPIO
 import serial
 import os
 import spidev
-    
+
+wspeed=0
+rff=0
+
 #function for getting data
-def get_data():
-     
+def get_data():     
      sense_data =[]  
      sense = SenseHat()
      tempC = round(sense.get_temperature())
@@ -34,6 +37,7 @@ def csv_log():
     file.write(str(now)+","+ str(tempC) +","+ str(tempF) +","+ str(press) +","+ str(humid)+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
+    print("success logging \n")
     
 #start of main program
 while True:
