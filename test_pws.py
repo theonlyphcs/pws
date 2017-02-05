@@ -1,6 +1,6 @@
 #WORKING
 #!/usr/bin/python3
-
+from peewee import *
 from sense_hat import SenseHat
 import RPi.GPIO as GPIO
 import time, math

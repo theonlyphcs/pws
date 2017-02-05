@@ -1,8 +1,8 @@
 from peewee import *
 
-mysql_db =MySQLDatabase('readings', user='root', passwd='raspi')
+db =MySQLDatabase('readings', user='root', passwd='raspi')
 
-class sensorreadings(Model):
+class dataReadings(Model):
     time = Charfield()
     tempC = Charfield()
     tempF = Charfield()
@@ -12,7 +12,7 @@ class sensorreadings(Model):
     rainfall = Charfield()
     
     class Meta:
-        database = mysql_db
+        database = db
 
 class dataObject(object):
     "Main data access layer class which provides functions to query sensor reading data from database"
@@ -20,9 +20,9 @@ class dataObject(object):
     def _init_(self):
         """initialise acces to the Sensor reading database"""
         #connect to Database.
-        mysql_db.connect()
+        db.connect()
         #make sure the tables are created (safe=True, otherwise they might be deleted).
-        mysql_db.create_tables([sensorreadings], safe=True)
+        db.create_tables([sensorreadings], safe=True)
 
     def get_recent_readings(self, limit=30):
         """return a list of the most recent reading the specified name, by default returns 30 readings, in descending order"""
