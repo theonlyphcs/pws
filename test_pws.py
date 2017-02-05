@@ -49,7 +49,7 @@ def csv_log():
     file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
-    print("success logging \n")
+    print("CSV success \n")
 
 #function for getting data
 def get_data():
@@ -91,6 +91,7 @@ while True:
         readingtime = datetime.now()
         data.add_reading(time=readingtime, tempC=sense_data[0], tempF=sense_data[1], press=sense_data[2], humid=sense_data[3], wspeed=wspeed, rainfall=rff)
     finally:
+        print("DB Logging success")
         data.close()
     time.sleep(10)
     
