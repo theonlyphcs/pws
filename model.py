@@ -2,7 +2,7 @@ from peewee import *
 
 db = MySQLDatabase('thesis', user='root', passwd='raspi')
 
-class dataReadings(Model):
+class datareadings(Model):
     time = CharField()
     tempC = CharField()
     tempF = CharField()
@@ -22,18 +22,18 @@ class dataObject(object):
         #connect to Database.
         db.connect()
         #make sure the tables are created (safe=True, otherwise they might be deleted).
-        db.create_tables([dataReadings], safe = True)
+        db.create_tables([datareadings], safe = True)
 
     def get_recent_readings(self, limit=30):
         """return a list of the most recent reading the specified name, by default returns 30 readings, in descending order"""
-        return dataReadings.select() \
-               .where(dataReadings.name == name) \
-               .order_by(dataReadings.time.desc()) \
+        return datareadings.select() \
+               .where(datareadings.name == name) \
+               .order_by(datareadings.time.desc()) \
                .limit(limit)
     
     def add_reading(self, time, tempC, tempF, press, humid, wspeed, rainfall):
         """add the specified sensor reading to the database"""
-        dataReadings.create(time=time, tempC=tempC, tempF=tempF, press=press, humid=humid, wspeed=wspeed, rainfall=rainfall)
+        datareadings.create(time=time, tempC=tempC, tempF=tempF, press=press, humid=humid, wspeed=wspeed, rainfall=rainfall)
 
     def close(self):
         """close the connection to the database"""
