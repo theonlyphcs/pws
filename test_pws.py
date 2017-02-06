@@ -91,7 +91,7 @@ while True:
 
     try:
         #Open database connection
-        db = MySQLdb.connect("169.254.84.210","root","raspi","readings")
+        db = MySQLdb.connect("169.254.138.89","root","raspi","readings")
 
         #prepare a cursor object using cursor method()
         cursor = db.cursor()
