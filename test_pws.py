@@ -1,6 +1,5 @@
 #WORKING
 #!/usr/bin/python3
-from peewee import *
 from sense_hat import SenseHat
 import RPi.GPIO as GPIO
 import time, math
@@ -8,11 +7,13 @@ import os
 import time
 from time import sleep
 from datetime import datetime
-import model
 import MySQLdb
+import serial
+
+
 
 wind_pin = 21
-rain_pin = 26
+rain_pin = 19
 wind_count = 0
 rain_count = 0
 rf = 0
@@ -51,7 +52,7 @@ def csv_log():
     file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
-    print("CSV success \n")
+    print("csv ok")    
 
 #function for getting data
 def get_data():
@@ -66,7 +67,7 @@ def get_data():
     sense_data.append(press)
     humid = round(sense.get_humidity())
     sense_data.append(humid)
-    return sense_data
+    return sense_data  
     
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(wind_pin, GPIO.IN, GPIO.PUD_UP)
@@ -74,8 +75,6 @@ GPIO.setup(rain_pin, GPIO.IN, GPIO.PUD_UP)
 GPIO.add_event_detect(wind_pin, GPIO.FALLING, callback=spin)
 GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
-
-data = model.dataObject()
 
 while True:
     readingtime = datetime.now()
@@ -85,10 +84,10 @@ while True:
     wspeed = calculate_speed(9.0, interval)
     rff = bucket_tipped(rf)
     sense_data=get_data()
-    csv_log()
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
     print(message,'\n')
-
+    csv_log()
+  
     try:
         #Open database connection
         db = MySQLdb.connect("169.254.138.89","root","raspi","readings")
@@ -99,7 +98,7 @@ while True:
         sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff))
 
         try:
-            #execute SQL QUERY USING EXECUTE METHOD()
+           #execute SQL QUERY USING EXECUTE METHOD()
             cursor.execute(sql)
 
             #commit changes in the database
@@ -115,7 +114,7 @@ while True:
         db.close()
 
     time.sleep(10)
-    
+        
 
 #WORKING
 
