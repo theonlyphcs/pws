@@ -13,7 +13,7 @@ import serial
 
 
 wind_pin = 21
-rain_pin = 19
+rain_pin = 26
 wind_count = 0
 rain_count = 0
 rf = 0
