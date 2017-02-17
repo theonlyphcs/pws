@@ -9,7 +9,9 @@ from time import sleep
 from datetime import datetime
 import MySQLdb
 import serial
-
+import I2C_LCD_driver
+import time
+mylcd = I2C_LCD_driver.lcd()
 
 
 wind_pin = 21
@@ -52,7 +54,7 @@ def csv_log():
     file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +"\n")
     file.flush()
     file.close()
-    print("csv ok")    
+    mylcd.lcd_display_string("CSV SUCCESS", 2) 
 
 #function for getting data
 def get_data():
@@ -77,6 +79,10 @@ GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
 
 while True:
+    mylcd.lcd_display_string("Time: %s" %time.strftime("%H:%M:%S"), 1)
+    
+    mylcd.lcd_display_string("Date: %s" %time.strftime("%m/%d/%Y"), 2)
+
     readingtime = datetime.now()
     wind_count = 0
     rain_count = 0
@@ -86,7 +92,6 @@ while True:
     sense_data=get_data()
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
     print(message,'\n')
-    csv_log()
   
     try:
         #Open database connection
@@ -103,17 +108,23 @@ while True:
 
             #commit changes in the database
             db.commit()
-            print("DB Logging success")
-            
+            mylcd.lcd_clear()
+            mylcd.lcd_display_string("LOGGING SUCCESS", 1)
+
+            try:
+                csv_log()
+            except:
+                      mylcd.lcd_display_string("ERROR CSV ", 1)
         except:
-            print("error log unsuccessful")
+            mylcd.lcd_display_string("ERROR LOGGING", 1)
             db.rollback()
             
     finally:
         #disconnect from server
         db.close()
-
+        
     time.sleep(10)
+    mylcd.lcd_clear()
         
 
 #WORKING
