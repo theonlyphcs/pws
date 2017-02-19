@@ -94,7 +94,7 @@ while True:
     wspeed = calculate_speed(9.0, interval)
     rff = bucket_tipped(rf)
     sense_data=get_data()
-    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} mm |\n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff,wvane)
+    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} |\n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff, wvane)
     print(message,'\n')
   
     try:
@@ -104,7 +104,7 @@ while True:
         #prepare a cursor object using cursor method()
         cursor = db.cursor()
         
-        sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall,wdirection) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s','%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff), str(wvane))
+        sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall, wdirection) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff), str(wvane))
 
         try:
            #execute SQL QUERY USING EXECUTE METHOD()
