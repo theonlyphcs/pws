@@ -11,7 +11,9 @@ import MySQLdb
 import serial
 import I2C_LCD_driver
 import time
+import serial
 mylcd = I2C_LCD_driver.lcd()
+ser =serial.Serial('/dev/ttyUSB0',9600)
 
 
 wind_pin = 21
@@ -48,10 +50,10 @@ def csv_log():
     file = open("/media/pi/SONDISK/data_log.csv", "a")
     i=0
     if os.stat("/media/pi/SONDISK/data_log.csv").st_size == 0:
-            file.write("Time,TempCelsius,TempFarenheit,Pressure,Humidity,Windspeed,Rainfall\n")
+            file.write("Time,TempCelsius,TempFarenheit,Pressure,Humidity,Windspeed,Rainfall,WindDirection\n")
     i=i+1
     now = datetime.now()
-    file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +"\n")
+    file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +","+ str(wvane) +"\n")
     file.flush()
     file.close()
     mylcd.lcd_display_string("CSV SUCCESS", 2) 
@@ -79,10 +81,12 @@ GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
 
 while True:
-    mylcd.lcd_display_string("Time: %s" %time.strftime("%H:%M:%S"), 1)
+    ser.flush()
+    wvane =ser.readline();
     
+    mylcd.lcd_display_string("Time: %s" %time.strftime("%H:%M:%S"), 1)
     mylcd.lcd_display_string("Date: %s" %time.strftime("%m/%d/%Y"), 2)
-
+    
     readingtime = datetime.now()
     wind_count = 0
     rain_count = 0
@@ -90,7 +94,7 @@ while True:
     wspeed = calculate_speed(9.0, interval)
     rff = bucket_tipped(rf)
     sense_data=get_data()
-    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | \n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff)
+    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} mm |\n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff,wvane)
     print(message,'\n')
   
     try:
@@ -100,7 +104,7 @@ while True:
         #prepare a cursor object using cursor method()
         cursor = db.cursor()
         
-        sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff))
+        sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall,wdirection) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s','%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff), str(wvane))
 
         try:
            #execute SQL QUERY USING EXECUTE METHOD()
@@ -122,9 +126,11 @@ while True:
     finally:
         #disconnect from server
         db.close()
+        ser.flush()
         
     time.sleep(10)
     mylcd.lcd_clear()
+    ser.flush()
         
 
 #WORKING
