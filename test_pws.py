@@ -12,8 +12,11 @@ import serial
 import time
 import serial
 from i2clibraries import i2c_hmc5883l
+import I2C_LCD_driver
+import time
+mylcd = I2C_LCD_driver.lcd()
 
-#ser =serial.Serial('/dev/ttyUSB0',9600)
+ser =serial.Serial('/dev/ttyUSB0',9600)
 
 
 wind_pin = 21
@@ -56,7 +59,6 @@ def csv_log():
     file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +","+ str(wvane) +"\n")
     file.flush()
     file.close()
-    #mylcd.lcd_display_string("CSV SUCCESS", 2)
     print("CSV SUCCESS"+'\n')
 
 #function for getting data
@@ -106,11 +108,51 @@ def log_data():
     finally:
         #disconnect from server
         db.close()
-        time.sleep(5)
+        
+        lcd1 = 'Temp C*:'+ str(sense_data[0])
+        ser.write(lcd1.encode())
+        time.sleep(1)
+        ser.flush()
+
+        lcd2 ='Temp F*:' +str(sense_data[1])
+        ser.write(lcd2.encode())
+        time.sleep(1)
+        ser.flush()
+        
+        lcd3 = 'Humidity:'+str(sense_data[3])+'%'
+        ser.write(lcd3.encode())
+        time.sleep(1)
+        ser.flush()
+        
+        lcd4 = 'RainF:'+ str(rff) +'mm'
+        ser.write(lcd4.encode())
+        time.sleep(1)
+        ser.flush()
+
+        lcd5 = 'Pressure:'+ str(sense_data[2]) +'hpa'
+        ser.write(lcd5.encode())
+        time.sleep(1)
+        ser.flush()
+        
+        lcd6 = 'WindS:'+str(wspeed) +'kph'
+        ser.write(lcd6.encode())
+        time.sleep(1)
+        ser.flush()
+        
+        lcd7 = 'WindD:' + str(wvane)
+        ser.write(lcd7.encode())
+        time.sleep(1)
+        ser.flush()
+
+        lcd8 = 'PWS 2017'
+        ser.write(lcd8.encode())
+        time.sleep(1)
+        ser.flush()
         
 def show_read():
     message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} | '.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff, wvane)
     print(message)
+    
 
     
 GPIO.setmode(GPIO.BCM)
@@ -122,7 +164,9 @@ interval = 5
 
 #MAIN LOOP
 while True:
+    mylcd.lcd_display_string("Time: %s" %time.strftime("%H:%M:%S"), 1)
     
+    mylcd.lcd_display_string("Date: %s" %time.strftime("%m/%d/%Y"), 2)
     hmc5883l = i2c_hmc5883l.i2c_hmc5883l(1)
     hmc5883l.setContinuousMode()
     hmc5883l.setDeclination(0,6)
