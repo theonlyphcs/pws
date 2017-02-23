@@ -9,11 +9,11 @@ from time import sleep
 from datetime import datetime
 import MySQLdb
 import serial
-import I2C_LCD_driver
 import time
 import serial
-mylcd = I2C_LCD_driver.lcd()
-ser =serial.Serial('/dev/ttyUSB0',9600)
+from i2clibraries import i2c_hmc5883l
+
+#ser =serial.Serial('/dev/ttyUSB0',9600)
 
 
 wind_pin = 21
@@ -56,7 +56,8 @@ def csv_log():
     file.write(str(now)+","+ str(sense_data[0]) +","+ str(sense_data[1]) +","+ str(sense_data[2]) +","+ str(sense_data[3])+","+ str(wspeed) +","+ str(rff) +","+ str(wvane) +"\n")
     file.flush()
     file.close()
-    mylcd.lcd_display_string("CSV SUCCESS", 2) 
+    #mylcd.lcd_display_string("CSV SUCCESS", 2)
+    print("CSV SUCCESS"+'\n')
 
 #function for getting data
 def get_data():
@@ -71,7 +72,46 @@ def get_data():
     sense_data.append(press)
     humid = round(sense.get_humidity())
     sense_data.append(humid)
-    return sense_data  
+    return sense_data
+
+def log_data():
+    try:
+            #Open database connection
+            db = MySQLdb.connect("169.254.138.89","root","raspi","readings")
+
+            #prepare a cursor object using cursor method()
+            cursor = db.cursor()
+                
+            sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall, wdirection) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff), str(wvane))
+
+            try:
+                #execute SQL QUERY USING EXECUTE METHOD()
+                cursor.execute(sql)
+
+                #commit changes in the database
+                db.commit()
+                print("LOGGING SUCCESS")
+
+                try:
+                    csv_log()
+                    #ser.flush()
+                except:
+                    #mylcd.lcd_display_string("ERROR CSV ", 1)
+                    print("ERROR CSV")
+            except:
+                #mylcd.lcd_display_string("ERROR LOGGING", 1)
+                print("ERROR DB")
+                db.rollback()
+                    
+    finally:
+        #disconnect from server
+        db.close()
+        time.sleep(5)
+        
+def show_read():
+    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} | '.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff, wvane)
+    print(message)
+
     
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(wind_pin, GPIO.IN, GPIO.PUD_UP)
@@ -80,13 +120,12 @@ GPIO.add_event_detect(wind_pin, GPIO.FALLING, callback=spin)
 GPIO.add_event_detect(rain_pin, GPIO.FALLING, callback=tip, bouncetime=300)
 interval = 5
 
+#MAIN LOOP
 while True:
-    ser.flush()
-    wvane =ser.readline();
     
-    mylcd.lcd_display_string("Time: %s" %time.strftime("%H:%M:%S"), 1)
-    mylcd.lcd_display_string("Date: %s" %time.strftime("%m/%d/%Y"), 2)
-    
+    hmc5883l = i2c_hmc5883l.i2c_hmc5883l(1)
+    hmc5883l.setContinuousMode()
+    hmc5883l.setDeclination(0,6)
     readingtime = datetime.now()
     wind_count = 0
     rain_count = 0
@@ -94,53 +133,59 @@ while True:
     wspeed = calculate_speed(9.0, interval)
     rff = bucket_tipped(rf)
     sense_data=get_data()
-    message = 'Temp in C* is {0} in F* is {1}  | Pressure is {2} mbars | Humidity is {3} percent | WindSpeed is {4} kph | Rainfall is {5} mm | WindDirection is {6} |\n'.format(sense_data[0],sense_data[1],sense_data[2],sense_data[3], wspeed, rff, wvane)
-    print(message,'\n')
-  
-    try:
-        #Open database connection
-        db = MySQLdb.connect("169.254.138.89","root","raspi","readings")
-
-        #prepare a cursor object using cursor method()
-        cursor = db.cursor()
+    wd = str(hmc5883l)
+    #print(wd)
+    wd2 = int(wd)
+    if wd2 == 0 or wd2 == 360:
+        #print("North")
+        wvane ="North"
+        show_read()
+        log_data()
         
-        sql= "INSERT INTO sensorreadings (time, tempC, tempF, press, humid, wspeed, rainfall, wdirection) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (str(readingtime), str(sense_data[0]), str(sense_data[1]), str(sense_data[2]), str(sense_data[3]), str(wspeed), str(rff), str(wvane))
-
-        try:
-           #execute SQL QUERY USING EXECUTE METHOD()
-            cursor.execute(sql)
-
-            #commit changes in the database
-            db.commit()
-            mylcd.lcd_clear()
-            mylcd.lcd_display_string("LOGGING SUCCESS", 1)
-
-            try:
-                csv_log()
-            except:
-                      mylcd.lcd_display_string("ERROR CSV ", 1)
-        except:
-            mylcd.lcd_display_string("ERROR LOGGING", 1)
-            db.rollback()
-            
-    finally:
-        #disconnect from server
-        db.close()
-        ser.flush()
+    elif wd2 > 0 and wd2 < 90:
+        #print("North East")
+        wvane ="North East"
+        show_read()
+        log_data()
         
-    time.sleep(10)
-    mylcd.lcd_clear()
-    ser.flush()
+    elif wd2 == 90:
+        #print ("East")
+        wvane = "East"
+        show_read()
+        log_data()
         
+    elif wd2 == 180:
+        #print("South")
+        wvane = "South"
+        show_read()
+        log_data()
 
+        
+    elif wd2 >90 and wd2 < 180:
+        #print("South East")
+        wvane = "South East"
+        show_read()
+        log_data()
+
+    elif wd2 > 180 and wd2 < 270:
+        #print("South West")
+        wvane = "South West"
+        show_read()
+        log_data()
+        
+    elif wd2 >270 and wd2 < 360:
+        #print("North West")
+        wvane = "North West"
+        show_read()
+        log_data()
+        
+    elif wd2 == 270:
+        #print("West")
+        wvane = "West"
+        show_read()
+        log_data()
+        
+    else:
+        log_data()
+        
 #WORKING
-
-
-
-
-
-
-     
-
-
-
